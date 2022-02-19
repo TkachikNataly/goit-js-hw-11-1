@@ -93,4 +93,5 @@ const lightboxOptions = {
   captionDelay: 250,
 };
 
+
 const lightboxGallery = new SimpleLightbox('.gallery a', lightboxOptions);
