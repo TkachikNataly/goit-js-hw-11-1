@@ -9,9 +9,9 @@ export default class ImagesAPIService {
     this.searchQuery = '';
     this.page = 1;
     this.PER_PAGE = 40;
-    this.totalHits = null;
-    this.totalPages = null;
-    this.endOfHits = false;
+    // this.totalHits = null;
+    // this.totalPages = null;
+    // this.endOfHits = false;
   }
 
   get query() {
@@ -47,9 +47,9 @@ export default class ImagesAPIService {
   }
 
   async fetchImages() {
-    const options = this.getOptions();
+    const option = this.getOptions();
 
-    const response = await axios.get(`?${options}`);
+    const response = await axios.get(`?${option}`);
     const data = await response.data;
 
     this.totalHits = data.totalHits;
