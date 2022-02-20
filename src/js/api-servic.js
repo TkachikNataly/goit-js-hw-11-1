@@ -1,7 +1,4 @@
 import axios from 'axios';
-// const URL = "https://pixabay.com/api/";
-
-// const 
 
 axios.defaults.baseURL = 'https://pixabay.com/';
 
@@ -24,8 +21,7 @@ export default class ImagesApiService {
       },
     };
 
-      const response = await axios.get('api/', options);
-      console.log('!!!!!')
+    const response = await axios.get('api/', options);
     const dataImages = await response.data;
     this.incrementPage();
     return dataImages;
