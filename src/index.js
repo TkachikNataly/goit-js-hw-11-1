@@ -1,96 +1,70 @@
 import './css/styles.css';
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
-import imageCardTpl from './templates/image-card.hbs';
-import ImagesApiService from './js/api-servic';
-import LoadMoreBtn from './js/load-btn';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import ImagesAPIService from './js/api-servic';
+import LoadMoreBtn from './js/load-btn';
+import Markup from './js/markup';
 
 const refs = {
-  searchForm: document.querySelector('#search-form'),
-  galleryContainer: document.querySelector('.gallery'),
+  form: document.querySelector('#search-form'),
+  gallery: document.querySelector('.gallery'),
 };
 
-const imagesApiService = new ImagesApiService();
-const loadMoreBtn = new LoadMoreBtn();
+const imagesAPIService = new ImagesAPIService();
+const loadMoreBtn = new LoadMoreBtn({ selector: '.load-more' });
+const renderMarkup = new Markup({ selector: refs.gallery });
 
-loadMoreBtn.hide();
+refs.form.addEventListener('submit', onFormSubmit);
+loadMoreBtn.button.addEventListener('click', onloadMoreBtnClick);
 
-refs.searchForm.addEventListener('submit', onSearch);
-loadMoreBtn.refs.button.addEventListener('click', fetchQueryImages);
-
-let hitsLengthSum;
-
-function onSearch(e) {
+async function onFormSubmit(e) {
   e.preventDefault();
+  renderMarkup.reset();
+  imagesAPIService.query = e.currentTarget.searchQuery.value.trim();
 
-  imagesApiService.query = e.currentTarget.elements.searchQuery.value;
-
-  if (imagesApiService.query === '') {
-    return errorQuery();
+  if (imagesAPIService.query === '') {
+    loadMoreBtn.hideBtn();
+    Notify.info('Your query is empty. Try again!');
+    return;
   }
 
-  loadMoreBtn.hide();
-  imagesApiService.resetPage();
-  clearGalleryContainer();
-  fetchQueryImages();
+  imagesAPIService.resetPage();
 
-  hitsLengthSum = 0;
-}
-
-async function fetchQueryImages() {
-  const { hits, totalHits } = await imagesApiService.fetchImages();
-
-  if (hits.length === 0) {
-    loadMoreBtn.hide();
-    return errorQuery();
+  try {
+    loadMoreBtn.showBtn();
+    await initFetchImages();
+  } catch (error) {
+    loadMoreBtn.hideBtn();
+    Notify.failure(error.message);
   }
 
-  hitsLengthSum += hits.length;
-  console.log(hitsLengthSum);
+  refs.form.reset();
+}
 
-  if (hitsLengthSum > totalHits) {
-    loadMoreBtn.hide();
-    return Notify.info("We're sorry, but you've reached the end of search results");
+async function onloadMoreBtnClick() {
+  await initFetchImages();
+  pageScroll();
+  renderMarkup.lightbox.refresh();
+}
+
+async function initFetchImages() {
+  loadMoreBtn.disable();
+  const images = await imagesAPIService.fetchImages();
+  renderMarkup.items = images;
+  renderMarkup.render();
+
+  if (imagesAPIService.endOfHits) {
+    loadMoreBtn.hideBtn();
+    return;
   }
-
-  renderImageCard(hits);
-
-  loadMoreBtn.show();
-
-  if (imagesApiService.page === 2) {
-    Notify.success(`Hooray! We found ${totalHits} images.`);
-  }
+  loadMoreBtn.enable();
 }
 
-function renderImageCard(images) {
-  refs.galleryContainer.insertAdjacentHTML('beforeend', imageCardTpl(images));
+function pageScroll() {
+  const { height: formHeight } = refs.form.getBoundingClientRect();
+  const { height: cardHeight } = refs.gallery.firstElementChild.getBoundingClientRect();
 
-  lightboxGallery.refresh();
-
-  if (imagesApiService.page > 2) {
-    const { height: cardHeight } = document
-      .querySelector('.gallery')
-      .firstElementChild.getBoundingClientRect();
-
-    window.scrollBy({
-      top: cardHeight * 2,
-      behavior: 'smooth',
-    });
-  }
+  window.scrollBy({
+    top: cardHeight * 2 - formHeight * 2,
+    behavior: 'smooth',
+  });
 }
-
-function clearGalleryContainer() {
-  refs.galleryContainer.innerHTML = '';
-}
-
-function errorQuery() {
-  Notify.failure('Sorry, there are no images matching your search query. Please try again');
-}
-
-const lightboxOptions = {
-  captions: true,
-  captionDelay: 250,
-};
-
-const lightboxGallery = new SimpleLightbox('.gallery a', lightboxOptions);

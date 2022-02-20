@@ -5,23 +5,23 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Homework 11</title>
+  <title>Image Finder</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
+  <link rel="stylesheet" href="./css/styles.css" />
 </head>
 
 <body>
   <form class="search-form" id="search-form">
-    <input type="text" name="searchQuery" autocomplete="off" placeholder="Search images..." />
-    <button type="submit">Search</button>
+    <input class="input" type="text" name="searchQuery" autocomplete="off" placeholder="Search images..." />
+    <button class="button" type="submit">Search</button>
   </form>
 
-  <div class="gallery"></div>
-
-  <button type="button" class="load-more">Load more...</button>
-  <!-- <button class="button">
-    <div class="button__text">{{ text }}</div>
-  </button> -->
-
-  <script src="index.js"></script>
+  <div class="gallery">
+    <!-- Карточки изображений -->
+  </div>
+  <!-- Load more button -->
+  <button type="button" class="load-more is-hidden">Load more</button>
+  <script src="./index.js"></script>
 </body>
 
 </html>
