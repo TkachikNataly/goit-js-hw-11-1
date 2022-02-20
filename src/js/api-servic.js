@@ -23,7 +23,8 @@ export default class ImagesAPIService {
   }
 
   getOptions() {
-    const options = new URLSearchParams({
+      const options = new URLSearchParams({
+          baseURL: 'https://pixabay.com/api/',
       key: `${API_KEY}`,
       q: `${this.searchQuery}`,
       page: `${this.page}`,
@@ -81,3 +82,8 @@ export default class ImagesAPIService {
     }
   }
 }
+// export default class ImagesAPIService {
+//     this.BASE_URL = 'https://pixabay.com/api/';
+
+//     this.API_KEY = 
+
